@@ -286,10 +286,3 @@ pp.118-126.
 Sittichai Jiampojamarn, Colin Cherry and Grzegorz Kondrak. "Joint Processing and Discriminative Training for
 Letter-to-Phoneme Conversion". In Proceeding of the Annual Meeting of the Association for Computational
 Linguistics: Human Language Technologies (ACL-08: HLT), Columbus, OH, June 2008, pp.905-913.
-
-
-*Author: Sittichai Jiampojamarn*
-
-*Date: May 19th, 2010*
-
-http://code.google.com/p/directl-p
