@@ -6,7 +6,7 @@ see the list of known publications that utilized the DirecTL+.
 In short, the model is trained with the Margin Infused Relaxed Algorithm (MIRA) or
 known as the PA-I algorithm with the phrasal decoders (exact and Beam ones) in an online training framework.
 
-DirecTL+ is implemented by [http://www.cs.ualberta.ca/~sj Sittichai Jiampojamarn] during the PhD's years at
+DirecTL+ was implemented by Sittichai Jiampojamarn during the PhD's years at
 [http://www.cs.ualberta.ca/ Department of Computing Science], [http://www.ualberta.ca University of Alberta].
 The first version of this model, so called DirecTL, includes: context n-gram, 1st order Markov, and linear-chain
 features. It was first introduced at ACL-08:
@@ -48,6 +48,18 @@ ACL-08 paper and let me know.
 available upon requests in the past.
 }}}
 
+Development of DirecTL+ was continued by Garrett Nicolai during his PhD program at the University of Alberta.
+
+The newest version of DirecTL+ contains a copy feature, which generalizes the identity operation a->a,
+and is useful for morphological operations. Furthemore, the user can specify whether deletions should
+occupy positions in target-side features such as markov and linear-chain features.
+
+Furthermore, DirecTL+ is now able to make use of both a wordlist (with frequencies) and an arpa-style 
+character language model for the target side.
+
+
+
+
 ==INSTALL:==
 
 DirecTL+ has been tested on Linux systems with gcc version 4.1.2.
@@ -63,11 +75,14 @@ You need to edit makefile for STLport and SVMlight locations in order to compile
 
 To install, simply run "make"
 
+Depending on the version of your c++ compiler, you may need to replace the hash_map type with the unordered_map
+
 ==USAGE:==
 {{{
-./directlp  [--extFeaTest <string>] [--extFeaDev <string>]
+./directlpCopy  [--extFeaTest <string>] [--extFeaDev <string>]
                [--extFeaTrain <string>] [--jointFMgram <int>] [--beam]
-               [--beamSize <int>] [--jointMgram <int>] [--noContextFea]
+               [--beamSize <int>] [--jointMgram <int>] [--copy] [--lm <string>]
+               [--wc <string>] [--noContextFea]
                [--SVMc <double>] [--alignLoss <minL|maxL|avgL|ascL|rakL
                |minS|maxS|mulA>] [--keepModel] [--outChar <string>]
                [--inChar <string>] [--nBestTest <int>] [--tam <int>] [--tal
@@ -140,6 +155,15 @@ Where:
    --cs <int>
      Context size (default 5)
 
+   --igNull 
+     Ignore null in markov features (default false)
+   --copy
+     Copy feature (default false)
+   --wc 
+     Filename of word list; should contain word and count, separated by tab
+   --lm 
+     Filename of language model; file should be in arpa format
+
    --nBest <int>
      n-best size for training (default 10)
 
@@ -180,7 +204,7 @@ For training file (-f), it takes aligned examples each sub-alignment separated b
 token in the sub-alignment, a tab separates between source x and target y, one line per (x,y) pair.
 You can use m2m-aligner to generate this alignment file, please see:
 
-http://code.google.com/p/m2m-aligner/
+https://github.com/GarrettNicolai/m2m
 
 or an example file:
 trainEx.aligned
@@ -209,6 +233,8 @@ trainEx.aligned.5nBest.5 : model file
 trainEx.aligned.5nBest.5.limit : helper file to indicate the limited generations
 trainEx.aligned.5nBest.5.maxX : helper file to indicate the maximum of phrase size.
 
+Note: the helper files must be in the same folder as the model file in order for DirecTL+ to function properly.
+
 Testing:  ./directlp --mi trainEx.aligned.5nBest.5 -t testEx.words --cs 3 --ng 7 --outChar ' ' -a
 testEx.words.output
 From this run, we test the model with "testEx.words" file.
@@ -224,10 +250,12 @@ testEx.words.output : output file in simple version.
 
 ==Acknowledgments:==
 This work was supported by the Alberta Ingenuity and Informatics Circle of Research Excellence (iCORE)
-throughout the Alberta Ingenuity Graduate Student Scholarship and iCORE ICT Graduate Student Scholarship.
+throughout the Alberta Ingenuity Graduate Student Scholarship and iCORE ICT Graduate Student Scholarship,
+the National Science and Engineering Research Council of Canada (NSERC), and Alberta Innovates -- Technology Futures (AITF).
 
 ==The list of known publications that utilized the DirecTL+:==
 _(Please contact me to include your usage in this list)_
+
 
 Sittichai Jiampojamarn, Kenneth Dwyer, Shane Bergsma, Aditya Bhargava,
 Qing Dou, Mi-Young Kim, Grzegorz Kondrak "Transliteration generation and mining with limited training resources"
