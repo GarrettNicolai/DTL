@@ -3967,6 +3967,8 @@ void phraseModel::testing(param &myParam)
 
 		size_t totRead = 0;
 		cout << "Reading file: " << myParam.testingFile << endl;
+		cout << endl << endl;
+		
 	
 		ifstream INPUTFILE;
 
@@ -4010,7 +4012,6 @@ void phraseModel::testing(param &myParam)
 	
 		
 			//readingTestingFile(myParam, myParam.testingFile, testData);
-			cout << endl << endl;
 		
 			for (vector_vData::iterator test_pos = testData.begin(); test_pos != testData.end(); test_pos++)
 			{
@@ -4083,8 +4084,8 @@ void phraseModel::testing(param &myParam)
 				{
 					PHRASEOUT  << endl;
 				}
-				testData.clear();
 			}
+			testData.clear();
 		}
 	}
 
