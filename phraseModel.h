@@ -42,6 +42,7 @@ public:
 	void readingAlignedFile(param &myParam, string filename, hash_string_vData& output, bool genFea=false);
 	//void dataToUnique(param &myParam, vector<data>& inData, hash_string_vData& outUniqueData);
 
+        void processExample(param &myParam, size_t& tot_read, vector<string> example, vector_vData& processedExample, bool genFea=false);
 	void readingTestingFile(param &myParam, string filename, vector_vData& output, bool genFea=false);
 	void readLMFile(param &myParam, string filename, hash_string_double& LMProbs, hash_string_double& LMBackoff, int& maxLM);
 	void readWCFile(param &myParam, string filename, hash_string_double& WLCounts);

@@ -351,6 +351,97 @@ void phraseModel::readLMFile(param &myParam, string filename, hash_string_double
 
 }
 
+void phraseModel::processExample(param &myParam, size_t& tot_read, vector<string> example, vector_vData& processedExample, bool genFea)
+{
+
+
+	data lineData;
+
+
+
+        //read aligned data //
+    	Tokenize(example[0], lineData.alignedX, "|");
+		
+    	if (example.size() > 1)
+    	{
+      		Tokenize(example[1], lineData.alignedY, "|");
+    	}
+
+	if (example.size() > 2)
+	{
+		//lineData.alignRank = convertTo<int>(example[2]);
+		lineData.alignRank = atoi(example[2].c_str());
+	}
+	else
+	{
+		// default // 
+		lineData.alignRank = 1;
+	}
+
+	if (example.size() > 3)
+	{
+		//lineData.alignScore = convertTo<double>(example[3]);
+		lineData.alignScore = atof(example[3].c_str());
+	}
+	else
+	{
+		lineData.alignScore = 1;
+	}
+
+	// re-format to unaligned data //
+	for (vector<string>::iterator pos = lineData.alignedX.begin() ; pos != lineData.alignedX.end() ; pos++)
+	{
+		Tokenize(*pos, lineData.unAlignedX, myParam.inChar);
+		int nDelete = removeSubString(*pos, myParam.inChar); // remove inChar
+		int phraseSize;
+		if (myParam.inChar == "")
+		{
+			phraseSize = (*pos).size();
+		}
+		else
+		{
+			phraseSize = nDelete + 1;
+		}
+		lineData.phraseSizeX.push_back(phraseSize);
+
+		// re-adjust maxX according to |phrase| //
+		if (phraseSize > myParam.maxX)
+		{
+			myParam.maxX = phraseSize;
+		}
+	}
+	removeVectorElem(lineData.unAlignedX, "_"); // remove null
+
+	if (example.size() > 1)
+	{
+		// re-format to unaligned data //
+		for (vector<string>::iterator pos = lineData.alignedY.begin() ; pos != lineData.alignedY.end() ; pos++)
+		{
+			Tokenize(*pos, lineData.unAlignedY, myParam.inChar);
+			removeSubString(*pos, myParam.inChar); // remove inChar
+		}
+		removeVectorElem(lineData.unAlignedY, "_"); // remove null
+	}
+	//output.push_back(lineData);
+
+	if (genFea)
+	{
+		lineData.feaVec = genFeature(myParam, lineData);
+	}
+
+	string unAlignedWord = join(lineData.unAlignedX, "", "");
+
+	//processedExample[unAlignedWord].push_back(lineData);
+	dataplus dataTMP; 
+	dataTMP.mydata.push_back(lineData);
+	processedExample.push_back(dataTMP);
+	//processedExample.[unAlignedWord].mydata.push_back(lineData);
+	tot_read++;
+
+
+}
+        
+
 void phraseModel::readingTestingFile(param &myParam, string filename, vector_vData& output, bool genFea)
 {
 	size_t totRead = 0;
@@ -3873,79 +3964,126 @@ void phraseModel::testing(param &myParam)
 		vector_vData testData;
 		cout << "Reading the test file " << endl;
 		//readingAlignedFile(myParam, myParam.testingFile, testData);
-		readingTestingFile(myParam, myParam.testingFile, testData);
-		cout << endl << endl;
-		
-		for (vector_vData::iterator test_pos = testData.begin(); test_pos != testData.end(); test_pos++)
+
+		size_t totRead = 0;
+		cout << "Reading file: " << myParam.testingFile << endl;
+	
+		ifstream INPUTFILE;
+
+		INPUTFILE.open(myParam.testingFile.c_str());
+		if (! INPUTFILE)
 		{
-		/*for (unsigned long ti = 0; ti < testData.size(); ti++)
-		{*/
-			vector_2str nBestAnswer;
-			vector_2str alignedXnBest;
-			vector_3str featureNbest;
-			vector<double> scoreNbest;
-			vector<double> nBestPER;
-			vector_str nullY;
+			cerr << endl << "Error: unable to open file " << myParam.testingFile << endl;
+			exit(-1);
+		}
 
-			if (myParam.useBeam)
+		while (! INPUTFILE.eof())
+		{
+			string line;
+			vector<string> lineList;
+
+			data lineData;
+
+			getline(INPUTFILE, line);
+
+			// ignore empty line
+			if (line == "")
 			{
-				//nBestAnswer = phrasalDecoder_beam(myParam, (test_pos->second).mydata[0].unAlignedX, alignedXnBest, featureNbest, scoreNbest);
-				nBestAnswer = phrasalDecoder_beam(myParam, test_pos->mydata[0].unAlignedX, nullY, alignedXnBest, featureNbest, scoreNbest, WLCounts, LMProbs, LMBackoff, maxLM);
-			}
-			else
-			{
-				nBestAnswer = phrasalDecoder(myParam, test_pos->mydata[0].unAlignedX, alignedXnBest, featureNbest, scoreNbest);
+				continue;
 			}
 
-			for (int n = 0; n < nBestAnswer.size(); n++)
+			// ignore line that indicate no alignment //
+			if (line.find("NO ALIGNMENT") != string::npos)
 			{
-				if (myParam.answerFile != "")
+				continue;
+			}
+
+			lineList = splitBySpace(line);
+
+			if (lineList.size() > 4)
+			{
+				cerr << endl << "Warning: wrong expected format" << endl << line << endl;
+				break;
+			}
+
+			processExample(myParam, totRead, lineList, testData);
+	
+		
+			//readingTestingFile(myParam, myParam.testingFile, testData);
+			cout << endl << endl;
+		
+			for (vector_vData::iterator test_pos = testData.begin(); test_pos != testData.end(); test_pos++)
+			{
+			/*for (unsigned long ti = 0; ti < testData.size(); ti++)
+			{*/
+				vector_2str nBestAnswer;
+				vector_2str alignedXnBest;
+				vector_3str featureNbest;
+				vector<double> scoreNbest;
+				vector<double> nBestPER;
+				vector_str nullY;
+
+				if (myParam.useBeam)
 				{
-        				string generated = "N\\A";
-                                        double probability = 0.0;
-					int wordLength = 0;
-                                        if(myParam.LMInFilename != "")
-                                        {
-                                                generated = join(nBestAnswer[n],"","");
-                                                removeSubString(generated, myParam.inChar); // remove inChar
-                                                removeSubString(generated, "_");
-						removeSubString(generated, "+");
+					//nBestAnswer = phrasalDecoder_beam(myParam, (test_pos->second).mydata[0].unAlignedX, alignedXnBest, featureNbest, scoreNbest);
+					nBestAnswer = phrasalDecoder_beam(myParam, test_pos->mydata[0].unAlignedX, nullY, alignedXnBest, featureNbest, scoreNbest, WLCounts, LMProbs, LMBackoff, maxLM);
+				}
+				else
+				{
+					nBestAnswer = phrasalDecoder(myParam, test_pos->mydata[0].unAlignedX, alignedXnBest, featureNbest, scoreNbest);
+				}
 
-                                                wordLength = utf8::distance(generated.c_str(), generated.c_str() + generated.length());
-                                                wordLength += 1; //And word-end boundary
-                                                //cout << generated << endl;
+				for (int n = 0; n < nBestAnswer.size(); n++)
+				{
+					if (myParam.answerFile != "")
+					{
+        					string generated = "N\\A";
+                        	                double probability = 0.0;
+						int wordLength = 0;
+                        	                if(myParam.LMInFilename != "")
+                        	                {
+                        	                        generated = join(nBestAnswer[n],"","");
+                        	                        removeSubString(generated, myParam.inChar); // remove inChar
+                        	                        removeSubString(generated, "_");
+							removeSubString(generated, "+");
 
- 						wordLength -= std::count(generated.begin(), generated.end(), '!');
-                                                wordLength -= std::count(generated.begin(), generated.end(), '@');
-                                                //wordLength -= std::count(generated.begin(), generated.end(), '+');
+                        	                        wordLength = utf8::distance(generated.c_str(), generated.c_str() + generated.length());
+                        	                        wordLength += 1; //And word-end boundary
+                        	                        //cout << generated << endl;
+	
+ 							wordLength -= std::count(generated.begin(), generated.end(), '!');
+        	                                        wordLength -= std::count(generated.begin(), generated.end(), '@');
+        	                                        //wordLength -= std::count(generated.begin(), generated.end(), '+');
 
 
 
 
-                                                probability = getLMProbability(generated, wordLength, LMProbs, LMBackoff, maxLM, true);
+        	                                        probability = getLMProbability(generated, wordLength, LMProbs, LMBackoff, maxLM, true);
 							/*cout << "TEST " << endl << endl;
                                                 	cout << "WORD: " << generated << endl;
 							cout << "PROB: " << probability << endl; 
                                                 	cout << "NPROB: " << probability / wordLength << endl;
 							cout << "LENGTH: " << wordLength << endl;
 							*/
-                                        }
+                                        	}
 
-					FILEOUT << join(test_pos->mydata[0].unAlignedX, "", "") << "\t" << join(nBestAnswer[n], myParam.outChar, "_") << endl;
-					PHRASEOUT << join(alignedXnBest[n], "|", "") << "|" << "\t";
-                                        PHRASEOUT << join(nBestAnswer[n], "|","") << "|" << "\t";
-                                        PHRASEOUT << n+1 << "\t";
-                                        PHRASEOUT << scoreNbest[n] << "\t" << generated << "\t" << probability / wordLength<< endl;
-                                }
-				else
-				{
-					cout << join(test_pos->mydata[0].unAlignedX, "", "") << "\t" << join(nBestAnswer[n], myParam.outChar, "_") << endl;
+						FILEOUT << join(test_pos->mydata[0].unAlignedX, "", "") << "\t" << join(nBestAnswer[n], myParam.outChar, "_") << endl;
+						PHRASEOUT << join(alignedXnBest[n], "|", "") << "|" << "\t";
+                                        	PHRASEOUT << join(nBestAnswer[n], "|","") << "|" << "\t";
+                                        	PHRASEOUT << n+1 << "\t";
+                                        	PHRASEOUT << scoreNbest[n] << "\t" << generated << "\t" << probability / wordLength<< endl;
+                                	}
+					else
+					{
+						cout << join(test_pos->mydata[0].unAlignedX, "", "") << "\t" << join(nBestAnswer[n], myParam.outChar, "_") << endl;
+					}
 				}
-			}
 
-			if (myParam.answerFile != "")
-			{
-				PHRASEOUT  << endl;
+				if (myParam.answerFile != "")
+				{
+					PHRASEOUT  << endl;
+				}
+				testData.clear();
 			}
 		}
 	}
