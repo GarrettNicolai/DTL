@@ -1,4 +1,5 @@
-=DirecTL+ : String transduction model=
+# DirecTL+ : String transduction model
+
 
 DirecTL+ is an online discriminative training model for string transduction problems.
 More specifically, it has been applied to name transliteration and grapheme-to-phoneme conversion tasks. Please
@@ -6,51 +7,57 @@ see the list of known publications that utilized the DirecTL+.
 In short, the model is trained with the Margin Infused Relaxed Algorithm (MIRA) or
 known as the PA-I algorithm with the phrasal decoders (exact and Beam ones) in an online training framework.
 
-DirecTL+ was implemented by Sittichai Jiampojamarn during the PhD's years at
-[http://www.cs.ualberta.ca/ Department of Computing Science], [http://www.ualberta.ca University of Alberta].
+DirecTL+ was implemented by Sittichai Jiampojamarn during the PhD's years at the
+[http://www.ualberta.ca](University of Alberta) [http://www.cs.ualberta.ca/](Department of Computing Science).
 The first version of this model, so called DirecTL, includes: context n-gram, 1st order Markov, and linear-chain
 features. It was first introduced at ACL-08:
 
-{{{
-@InProceedings{jiampojamarn2008,
-  author    = {Jiampojamarn, Sittichai  and  Cherry, Colin  and  Kondrak, Grzegorz},
-  title     = {Joint Processing and Discriminative Training for Letter-to-Phoneme Conversion},
-  booktitle = {Proceedings of ACL-08: HLT},
-  month     = {June},
-  year      = {2008},
-  address   = {Columbus, Ohio},
-  publisher = {Association for Computational Linguistics},
-  pages     = {905--913},
-  url       = {http://www.aclweb.org/anthology/P/P08/P08-1103}
+```bibtex
+@inproceedings{jiampojamarn-etal-2008-joint,
+    title = "Joint Processing and Discriminative Training for Letter-to-Phoneme Conversion",
+    author = "Jiampojamarn, Sittichai  and
+      Cherry, Colin  and
+      Kondrak, Grzegorz",
+    booktitle = "Proceedings of ACL-08: HLT",
+    month = jun,
+    year = "2008",
+    address = "Columbus, Ohio",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/P08-1103",
+    pages = "905--913",
 }
-}}}
+```
 
 Later, joint n-gram features were added for further improvements. So, we named it as DirecTL+ and described in
 
-{{{
-@InProceedings{jiampojamarn2010,
-  author    = {Jiampojamarn, Sittichai and Cherry, Colin and Kondrak, Grzegorz},
-  title     = {Integrating Joint n-gram Features into a Discriminative Training Framework},
-  booktitle = {Proceedings of NAACL-2010},
-  month     = {June},
-  year      = {2010},
-  address   = {Los Angeles, CA},
-  publisher = {Association for Computational Linguistics}
+```bibtex
+@inproceedings{jiampojamarn-etal-2010-integrating,
+    title = "Integrating Joint n-gram Features into a Discriminative Training Framework",
+    author = "Jiampojamarn, Sittichai  and
+      Cherry, Colin  and
+      Kondrak, Grzegorz",
+    booktitle = "Human Language Technologies: The 2010 Annual Conference of the North {A}merican Chapter of the Association for Computational Linguistics",
+    month = jun,
+    year = "2010",
+    address = "Los Angeles, California",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/N10-1103",
+    pages = "697--700",
 }
-}}}
+```
 
 You are welcome to use the code without any warranty; however, please acknowledge its use with a citation to the
-ACL-08 paper and let me know.
+ACL 2008 paper and let me know.
 
-==VERSIONS:==
-{{{
-        1.0: The first released version of DirecTL+ to public. All previous versions were for in-house users
+## Versions
+
+- 1.0: The first released version of DirecTL+ to public. All previous versions were for in-house users
 available upon requests in the past.
-}}}
+
 
 Development of DirecTL+ was continued by Garrett Nicolai during his PhD program at the University of Alberta.
 
-The newest version of DirecTL+ contains a copy feature, which generalizes the identity operation a->a,
+The newest version of DirecTL+ contains a copy feature, which generalizes the identity operation `a→a`
 and is useful for morphological operations. Furthemore, the user can specify whether deletions should
 occupy positions in target-side features such as markov and linear-chain features.
 
@@ -60,25 +67,25 @@ character language model for the target side.
 
 
 
-==INSTALL:==
+## Installation
 
-DirecTL+ has been tested on Linux systems with gcc version 4.1.2.
+DirecTL+ has been tested on Linux systems with `gcc` version 4.1.2.
 There are two required packages:
 
 1. STLport can be downloaded from http://www.stlport.org/
-
 2. SVMlight can be downloaded from http://svmlight.joachims.org/
 
-Note, it requires a part of the SVMlight library. Please see the makefile for more detail.
+Note, it requires a part of the SVMlight library. Please see the Makefile for more detail.
 
-You need to edit makefile for STLport and SVMlight locations in order to compile the codes.
+You need to edit the Makefile with STLport and SVMlight locations in order to compile the codes.
 
-To install, simply run "make"
+To install, simply run `make`
 
-Depending on the version of your c++ compiler, you may need to replace the hash_map type with the unordered_map
+Depending on the version of your C++ compiler, you may need to replace the `hash_map` type with the `unordered_map`
 
-==USAGE:==
-{{{
+## Usage
+
+```
 ./directlpCopy  [--extFeaTest <string>] [--extFeaDev <string>]
                [--extFeaTrain <string>] [--jointFMgram <int>] [--beam]
                [--beamSize <int>] [--jointMgram <int>] [--copy] [--lm <string>]
@@ -196,64 +203,64 @@ Where:
 
    -h,  --help
      Displays usage information and exits.
-}}}
+```
 
-==File formats:==
+## File Formats
 
-For training file (-f), it takes aligned examples each sub-alignment separated by a pipe (|), (:) separates each
-token in the sub-alignment, a tab separates between source x and target y, one line per (x,y) pair.
-You can use m2m-aligner to generate this alignment file, please see:
+For training file (`-f`), it takes aligned examples each sub-alignment separated by a pipe (`|`). A colon (`:`) separates each
+token in the sub-alignment. A tab separates between source `x` and target `y`, one line per `(x,y)` pair.
+You can use `m2m-aligner` to generate this alignment file; please see:
 
 https://github.com/GarrettNicolai/m2m
 
 or an example file:
-trainEx.aligned
+`trainEx.aligned`
 
-The development file (-d) is in the same format as the training file. It is used to determined when the training
+The development file (`-d`) is in the same format as the training file. It is used to determined when the training
 should stop. If it isn't specified, the model will train until the performance drops.
 
-Testing file (-t) is one line per test word, each token is separated by a pipe (|). Please example file:
+Testing file (`-t`) is one line per test word, each token is separated by a pipe (`|`). Please example file:
 testEx.words
 
-==Example run:==
+## Example run
 
 Training: Example run:
 
-Training: ./directlp -f trainEx.aligned --inChar : --cs 3 --ng 7 --nBest 5 --tam 5
+Training: `./directlp -f trainEx.aligned --inChar : --cs 3 --ng 7 --nBest 5 --tam 5`
 
-From this run, we train using "trainEx.aligned".
-"--inChar :" indicates that each token in the sub-alignment is separated by ":".
-"--cs 3" indicates the context size of 3.
-"--ng 7" indicates the n-gram features of 7 (=cs `*` 2 + 1).
-"--nBest 5" indicates that we're using 5-best to update the model.
-"--tam 5" indicates that we train at most 5 iterations.
+From this run, we train using `trainEx.aligned`.
+* `--inChar :` indicates that each token in the sub-alignment is separated by ":".
+* `--cs 3` indicates the context size of 3.
+* `--ng 7` indicates the n-gram features of 7 (=cs `*` 2 + 1).
+* `--nBest 5` indicates that we're using 5-best to update the model.
+* `--tam 5` indicates that we train at most 5 iterations.
 
 Output files from the above run:
-trainEx.aligned.5nBest.5 : model file
-trainEx.aligned.5nBest.5.limit : helper file to indicate the limited generations
-trainEx.aligned.5nBest.5.maxX : helper file to indicate the maximum of phrase size.
+* `trainEx.aligned.5nBest.5` : model file
+* `trainEx.aligned.5nBest.5.limit` : helper file to indicate the limited generations
+* `trainEx.aligned.5nBest.5.maxX` : helper file to indicate the maximum of phrase size.
 
 Note: the helper files must be in the same folder as the model file in order for DirecTL+ to function properly.
 
-Testing:  ./directlp --mi trainEx.aligned.5nBest.5 -t testEx.words --cs 3 --ng 7 --outChar ' ' -a
-testEx.words.output
-From this run, we test the model with "testEx.words" file.
-"--mi trainEx.aligned.5nBest.5" read the model from the model file.
-"-t testEx.words" read test words from the test file.
-"--cs 3 --ng 7" using the same features as training.
-"--outChar ' '" using a space to separate each output token.
-"-a testEx.words.output" specify the output file.
+Testing:  `./directlp --mi trainEx.aligned.5nBest.5 -t testEx.words --cs 3 --ng 7 --outChar ' ' -a testEx.words.output`
+From this run, we test the model with the `testEx.words` file.
+* `--mi trainEx.aligned.5nBest.5` read the model from the model file.
+* `-t testEx.words` read test words from the test file.
+* `--cs 3 --ng 7` using the same features as training.
+* `--outChar ' '` using a space to separate each output token.
+* `-a testEx.words.output` specify the output file.
 
 Output files from the above run:
-testEx.words.output.phraseOut : output file in detail with aligned productions, rank, and score.
-testEx.words.output : output file in simple version.
+* `testEx.words.output.phraseOut` : output file in detail with aligned productions, rank, and score.
+* `testEx.words.output` : output file in simple version.
 
-==Acknowledgments:==
+## Acknowledgments
+
 This work was supported by the Alberta Ingenuity and Informatics Circle of Research Excellence (iCORE)
 throughout the Alberta Ingenuity Graduate Student Scholarship and iCORE ICT Graduate Student Scholarship,
 the National Science and Engineering Research Council of Canada (NSERC), and Alberta Innovates -- Technology Futures (AITF).
 
-==The list of known publications that utilized the DirecTL+:==
+## The list of known publications that utilized the DirecTL+
 _(Please contact me to include your usage in this list)_
 
 
